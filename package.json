@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server-http-7172.js",
-    "go": "node server-proxy-https-5200B.js"
+    "go": "node server-proxy-https-5200.js"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",

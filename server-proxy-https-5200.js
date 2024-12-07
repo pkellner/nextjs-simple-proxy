@@ -22,6 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// without this, can not access the target server for login from local https
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false, // Allow self-signed certificates
 });
