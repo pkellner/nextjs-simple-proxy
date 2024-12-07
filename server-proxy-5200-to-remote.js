@@ -19,13 +19,9 @@ app.use(cookieParser());
 app.use(
   "*",
   createProxyMiddleware({
-    target: "https://localhost:7172/x",
+    target: "https://proxytester.73rdst.com/any-old-url",
     changeOrigin: true, // Updates the host header to the target URL
     secure: false, // Allow self-signed SSL certificates
-    pathRewrite: (path, req) => {
-      // Keep the original path intact
-      return path;
-    },
     onProxyReq: (proxyReq, req, res) => {
       // Pass cookies from the client to the backend
       if (req.headers.cookie) {

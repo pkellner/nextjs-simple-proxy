@@ -87,7 +87,7 @@ app.all("*", (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Headers Received</title>
+      <title>Headers Received for server-http-7172 (could be behind reverse proxy)</title>
       <style>
         body {
           font-family: Arial, sans-serif;
