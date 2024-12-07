@@ -137,6 +137,6 @@ app.all("*", (req, res) => {
 // Start the HTTP server
 http.createServer(app).listen(7172, () => {
   console.log(
-    "Server is running at http://localhost:7172 (server-http-7172.js)",
+    "Server is running at http://localhost:7172 (server-http-7172.js)! 🚀",
   );
 });
