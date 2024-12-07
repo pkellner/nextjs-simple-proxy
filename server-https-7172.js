@@ -1,14 +1,3 @@
-/*
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
--keyout localhost7172.key -out localhost7172.crt \
--subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost7172"
-
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
--keyout localhost5200proxyserver.key -out localhost5200proxyserver.crt \
--subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost5200"
-
- */
-
 const fs = require("fs");
 const https = require("https");
 const path = require("path");
@@ -26,22 +15,140 @@ const options = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello from root");
+  res.send("Hello from the root of the app!");
 });
 
-// Handle incoming requests
+// Handle most incoming requests except "/" above
 app.all("*", (req, res) => {
-  // Collect headers
   const headers = req.headers;
 
-  // Respond with the headers in JSON format
-  res.json({
-    message: "Headers received",
-    headers,
-  });
+  // Identify header categories
+  const cookies = headers["cookie"]
+    ? [{ key: "Cookie", value: headers["cookie"] }]
+    : [];
+  const securityHeaders = Object.entries(headers).filter(([key]) =>
+    [
+      "x-frame-options",
+      "x-content-type-options",
+      "strict-transport-security",
+      "content-security-policy",
+      "referrer-policy",
+      "permissions-policy",
+    ].includes(key.toLowerCase())
+  );
+  const normalHeaders = Object.entries(headers).filter(
+    ([key]) =>
+      key.toLowerCase() !== "cookie" &&
+      !securityHeaders.some(([secKey]) => secKey === key)
+  );
+
+  // Generate HTML sections
+  const formatHeaders = (headersList) =>
+    headersList
+      .map(
+        ([key, value]) =>
+          `<tr><td style="padding: 8px; border: 1px solid #ddd;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`
+      )
+      .join("");
+
+  const cookieSection = cookies.length
+    ? `
+      <h2>Cookies</h2>
+      <table>
+        <thead>
+          <tr><th>Header</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          ${cookies
+      .map(({ key, value }) => formatHeaders([[key, value]]))
+      .join("")}
+        </tbody>
+      </table>
+    `
+    : "";
+
+  const securitySection = `
+    <h2>Security Headers</h2>
+    <table>
+      <thead>
+        <tr><th>Header</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        ${formatHeaders(securityHeaders)}
+      </tbody>
+    </table>
+  `;
+
+  const normalSection = `
+    <h2>Other Headers</h2>
+    <table>
+      <thead>
+        <tr><th>Header</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        ${formatHeaders(normalHeaders)}
+      </tbody>
+    </table>
+  `;
+
+  // HTML template
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Headers Received for server-https-7172</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          margin: 20px;
+        }
+        h1 {
+          color: #333;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          margin-top: 20px;
+        }
+        th {
+          background-color: #f4f4f4;
+          text-align: left;
+          padding: 8px;
+          border: 1px solid #ddd;
+        }
+        td {
+          padding: 8px;
+          border: 1px solid #ddd;
+        }
+        hr {
+          border: none;
+          border-top: 4px solid #333;
+          margin: 20px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Headers Received for server-https-7172</h1>
+      <h2>(could be behind reverse proxy)</h2>
+      <h3>This server has its own self-signed keys.</h3>
+      ${cookieSection}
+      ${cookies.length ? "<hr />" : ""}
+      ${securitySection}
+      <hr />
+      ${normalSection}
+    </body>
+    </html>
+  `;
+
+  res.send(html);
 });
 
 // Start the HTTPS server
 https.createServer(options, app).listen(7172, () => {
-  console.log("Server is running at https://localhost:7172");
+  console.log(
+    "Server is running at https://localhost:7172 (server-https-7172.js)! 🚀"
+  );
 });
