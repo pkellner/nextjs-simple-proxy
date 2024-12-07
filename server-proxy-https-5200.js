@@ -15,26 +15,44 @@ const app = express();
 // Parse cookies to ensure they're available in `req.cookies`
 app.use(cookieParser());
 
-const target = "https://proxytest.73rdst.com"; // Target server
+//const target = "https://proxytest.73rdst.com"; // Target server
+const target = "https://localhost:7172"; // Target server
+
+app.use((req, res, next) => {
+  // console.log("Incoming request:", {
+  //   method: req.method,
+  //   url: req.url,
+  //   headers: req.headers
+  // });
+  next();
+});
 
 // Proxy middleware
 app.use(
   "*",
   createProxyMiddleware({
     target: target, // Proxy to target server
-    changeOrigin: true, // Updates the host header to the target URL
+    //changeOrigin: true, // Updates the host header to the target URL
     secure: false, // Allow self-signed SSL certificates
-    pathRewrite: (path, req) => req.originalUrl,
+    pathRewrite: (path, req) => {
+      return req.originalUrl;
+    },
     onProxyReq: (proxyReq, req, res) => {
+
+      console.log("Original request Origin:", req.headers.origin);
+      console.log("Setting Origin to:", "https://localhost:7172");
+      proxyReq.setHeader("Origin", "https://localhost:7172");
+
+
       // Forward client cookies to the target server
       if (req.headers.cookie) {
         console.log("Forwarding Cookies:", req.headers.cookie);
       }
 
-      proxyReq.setHeader("Origin", "https://desired-origin.com");
-
       // Set a custom header
       proxyReq.setHeader("X-Custom-Header", "my-custom-value");
+
+      console.log("Proxy Request Headers:", proxyReq.getHeaders());
     },
     onProxyRes: (proxyRes, req, res) => {
       console.log("Response from target server:", proxyRes.statusCode);
