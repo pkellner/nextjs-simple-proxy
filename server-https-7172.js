@@ -155,7 +155,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.cookie("username", "Elliot", cookieOptions);
+  res.cookie("username", "Elliot1", cookieOptions);
   // redirect to root
   res.redirect("/");
 });
