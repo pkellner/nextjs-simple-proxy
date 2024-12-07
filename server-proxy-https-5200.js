@@ -15,9 +15,7 @@ const app = express();
 // Parse cookies to ensure they're available in `req.cookies`
 app.use(cookieParser());
 
-const target = "https://localhost:7172";
-// const target = "https://localhost:7172";
-// const target = "https://proxytest.73rdst.com";
+const target = "https://proxytest.73rdst.com"; // Target server
 
 // Proxy middleware
 app.use(
@@ -26,21 +24,17 @@ app.use(
     target: target, // Proxy to target server
     changeOrigin: true, // Updates the host header to the target URL
     secure: false, // Allow self-signed SSL certificates
-    pathRewrite: (path, req) => {
-      return req.originalUrl;
-    },
+    pathRewrite: (path, req) => req.originalUrl,
     onProxyReq: (proxyReq, req, res) => {
       // Forward client cookies to the target server
       if (req.headers.cookie) {
         console.log("Forwarding Cookies:", req.headers.cookie);
-        //proxyReq.setHeader("Cookie", req.headers.cookie);
       }
 
       // Set a custom header
       proxyReq.setHeader("X-Custom-Header", "my-custom-value");
     },
     onProxyRes: (proxyRes, req, res) => {
-
       console.log("Response from target server:", proxyRes.statusCode);
 
       // Remove any existing CORS headers from the target response
@@ -54,8 +48,8 @@ app.use(
         res.setHeader("Set-Cookie", proxyRes.headers["set-cookie"]);
       }
 
-      // Set CORS headers for the client
-      res.setHeader("Access-Control-Allow-Origin", "*");
+      // Set specific CORS headers for the client
+      res.setHeader("Access-Control-Allow-Origin", "https://localhost:5200");
       res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
       res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
       res.setHeader("Access-Control-Allow-Credentials", "true");
