@@ -120,7 +120,8 @@ app.all("*", (req, res) => {
       </style>
     </head>
     <body>
-      <h1>Headers Received</h1>
+      <h1>eaders Received for server-http-7172</h1>
+      <h2>(could be behind reverse proxy)</h2>
       ${cookieSection}
       ${cookies.length ? "<hr />" : ""}
       ${securitySection}
