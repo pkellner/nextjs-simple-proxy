@@ -15,16 +15,18 @@ const app = express();
 // Parse cookies to ensure they're available in `req.cookies`
 app.use(cookieParser());
 
+const target = "https://localhost:7172";
+// const target = "https://localhost:7172";
+// const target = "https://proxytest.73rdst.com";
+
 // Proxy middleware
 app.use(
   "*",
   createProxyMiddleware({
-    target: "https://localhost:7172", // Proxy to target server
+    target: target, // Proxy to target server
     changeOrigin: true, // Updates the host header to the target URL
     secure: false, // Allow self-signed SSL certificates
     pathRewrite: (path, req) => {
-      // Forward the original path to the target server
-      console.log("Original Path:", req.originalUrl);
       return req.originalUrl;
     },
     onProxyReq: (proxyReq, req, res) => {
@@ -38,6 +40,9 @@ app.use(
       proxyReq.setHeader("X-Custom-Header", "my-custom-value");
     },
     onProxyRes: (proxyRes, req, res) => {
+
+      console.log("Response from target server:", proxyRes.statusCode);
+
       // Remove any existing CORS headers from the target response
       delete proxyRes.headers["access-control-allow-origin"];
       delete proxyRes.headers["access-control-allow-methods"];
@@ -61,5 +66,5 @@ app.use(
 
 // Start the HTTPS server on port 5200
 https.createServer(options, app).listen(5200, () => {
-  console.log("Proxy server is running at https://localhost:5200");
+  console.log(`Proxy server is running at https://localhost:5200 and proxy to ${target}`);
 });

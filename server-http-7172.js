@@ -1,9 +1,40 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const app = express();
 
 app.use(cookieParser());
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "strict",
+};
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://localhost:3000",
+  "http://localhost:5200",
+  "https://localhost:5200",
+  "http://localhost:7172",
+  "https://localhost:7172",
+  "http://localhost:3000",
+  "https://localhost:3000",
+];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Allow credentials (cookies, etc.)
+  }),
+);
 
 function renderHeaders(req) {
   const headers = req.headers;
@@ -19,19 +50,19 @@ function renderHeaders(req) {
       "content-security-policy",
       "referrer-policy",
       "permissions-policy",
-    ].includes(key.toLowerCase())
+    ].includes(key.toLowerCase()),
   );
   const normalHeaders = Object.entries(headers).filter(
     ([key]) =>
       key.toLowerCase() !== "cookie" &&
-      !securityHeaders.some(([secKey]) => secKey === key)
+      !securityHeaders.some(([secKey]) => secKey === key),
   );
 
   const formatHeaders = (headersList) =>
     headersList
       .map(
         ([key, value]) =>
-          `<tr><td style="padding: 8px; border: 1px solid #ddd;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`
+          `<tr><td style="padding: 8px; border: 1px solid #ddd;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`,
       )
       .join("");
 
@@ -44,8 +75,8 @@ function renderHeaders(req) {
         </thead>
         <tbody>
           ${cookies
-      .map(({ key, value }) => formatHeaders([[key, value]]))
-      .join("")}
+            .map(({ key, value }) => formatHeaders([[key, value]]))
+            .join("")}
         </tbody>
       </table>
     `
@@ -104,48 +135,24 @@ app.get("/", (req, res) => {
       <title>Sample Fetch UI (HTTP)</title>
     </head>
     <body>
-      <h1>Sample Fetch UI</h1>
-      <p>${loginStatus}</p>
-      <button id="login">Login</button>
-      <button id="logout">Logout</button>
-      <p id="jokes"></p>
-      <script>
-        document.getElementById("login").addEventListener("click", async () => {
-          await fetch("/login", { method: "POST", credentials: "include" });
-          location.reload();
-        });
-
-        document.getElementById("logout").addEventListener("click", async () => {
-          await fetch("/logout", { method: "POST", credentials: "include" });
-          location.reload();
-        });
-
-        (async () => {
-          const res = await fetch("/jokes");
-          const text = await res.text();
-          document.getElementById("jokes").innerHTML = text;
-        })();
-      </script>
-      <hr />
+    <h3> /login and /logout to set and clear cookie ${JSON.stringify(cookieOptions)}</h3>
       ${headerRendering}
     </body>
     </html>
   `);
 });
 
-// Login endpoint
-app.post("/login", (req, res) => {
-  res.cookie("username", "Elliot", {
-    httpOnly: true,
-  });
-  res.status(200).send("Logged in as Elliot");
+app.get("/login", (req, res) => {
+  res.cookie("username", "Elliot", cookieOptions);
+  // redirect to root
+  res.redirect("/");
 });
 
-// Logout endpoint
-app.post("/logout", (req, res) => {
+app.get("/logout", (req, res) => {
   res.clearCookie("username");
-  res.status(200).send("Logged out");
+  res.redirect("/");
 });
+
 
 // Jokes endpoint
 app.get("/jokes", (req, res) => {
@@ -182,6 +189,7 @@ app.all("*", (req, res) => {
 // Start the HTTP server
 app.listen(7172, () => {
   console.log(
-    "Server is running at http://localhost:7172 (server-http-7172.js)! 🚀"
+    "Server is running at http://localhost:7172 (server-http-7172.js)! 🚀",
+    cookieOptions,
   );
 });
