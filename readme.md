@@ -12,6 +12,6 @@ running from port 5200 to port 7172. It is using the cert that we generated
 locally. If you do either a `curl -k https://localhost:5200` or a `curl -k https://localhost:7172` you will see the same output.
 
 
-names are hardcoded in the server.js file
+
 
 http://localhost:3000/ -> https://mysite.com

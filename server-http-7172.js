@@ -1,17 +1,13 @@
 const http = require("http");
 const express = require("express");
+const cookieParser = require("cookie-parser");
 
 const app = express();
+app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.send("Hello from the root of the app!");
-});
-
-// Handle most incoming requests except "/" above
-app.all("*", (req, res) => {
+function renderHeaders(req) {
   const headers = req.headers;
 
-  // Identify header categories
   const cookies = headers["cookie"]
     ? [{ key: "Cookie", value: headers["cookie"] }]
     : [];
@@ -23,20 +19,19 @@ app.all("*", (req, res) => {
       "content-security-policy",
       "referrer-policy",
       "permissions-policy",
-    ].includes(key.toLowerCase()),
+    ].includes(key.toLowerCase())
   );
   const normalHeaders = Object.entries(headers).filter(
     ([key]) =>
       key.toLowerCase() !== "cookie" &&
-      !securityHeaders.some(([secKey]) => secKey === key),
+      !securityHeaders.some(([secKey]) => secKey === key)
   );
 
-  // Generate HTML sections
   const formatHeaders = (headersList) =>
     headersList
       .map(
         ([key, value]) =>
-          `<tr><td style="padding: 8px; border: 1px solid #ddd;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`,
+          `<tr><td style="padding: 8px; border: 1px solid #ddd;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`
       )
       .join("");
 
@@ -49,8 +44,8 @@ app.all("*", (req, res) => {
         </thead>
         <tbody>
           ${cookies
-            .map(({ key, value }) => formatHeaders([[key, value]]))
-            .join("")}
+      .map(({ key, value }) => formatHeaders([[key, value]]))
+      .join("")}
         </tbody>
       </table>
     `
@@ -80,46 +75,8 @@ app.all("*", (req, res) => {
     </table>
   `;
 
-  // HTML template
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Headers Received for server-http-7172 (could be behind reverse proxy)</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          line-height: 1.6;
-          margin: 20px;
-        }
-        h1 {
-          color: #333;
-        }
-        table {
-          border-collapse: collapse;
-          width: 100%;
-          margin-top: 20px;
-        }
-        th {
-          background-color: #f4f4f4;
-          text-align: left;
-          padding: 8px;
-          border: 1px solid #ddd;
-        }
-        td {
-          padding: 8px;
-          border: 1px solid #ddd;
-        }
-        hr {
-          border: none;
-          border-top: 4px solid #333;
-          margin: 20px 0;
-        }
-      </style>
-    </head>
-    <body>
+  return `
+    <div>
       <h1>Headers Received for server-http-7172</h1>
       <h2>(could be behind reverse proxy)</h2>
       ${cookieSection}
@@ -127,16 +84,105 @@ app.all("*", (req, res) => {
       ${securitySection}
       <hr />
       ${normalSection}
+    </div>
+  `;
+}
+
+// Root page with Login and Logout buttons
+app.get("/", (req, res) => {
+  const username = req.cookies.username;
+  const loginStatus = username
+    ? `${username} is logged in.`
+    : "No one is logged in.";
+  const headerRendering = renderHeaders(req);
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Sample Fetch UI</title>
+    </head>
+    <body>
+      <h1>Sample Fetch UI</h1>
+      <p>${loginStatus}</p>
+      <button id="login">Login</button>
+      <button id="logout">Logout</button>
+      <p id="jokes"></p>
+      <script>
+        document.getElementById("login").addEventListener("click", async () => {
+          await fetch("/login", { method: "POST" });
+          //alert("Logged in as Elliot!");
+          location.reload();
+        });
+
+        document.getElementById("logout").addEventListener("click", async () => {
+          await fetch("/logout", { method: "POST" });
+          //alert("Logged out!");
+          location.reload();
+        });
+
+        (async () => {
+          const res = await fetch("/jokes");
+          const text = await res.text();
+          document.getElementById("jokes").innerHTML = text;
+        })();
+      </script>
+      <hr />
+      ${headerRendering}
     </body>
     </html>
-  `;
+  `);
+});
 
-  res.send(html);
+// Login endpoint
+app.post("/login", (req, res) => {
+  res.cookie("username", "Elliot", { httpOnly: true });
+  res.status(200).send("Logged in as Elliot");
+});
+
+// Logout endpoint
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.status(200).send("Logged out");
+});
+
+// Jokes endpoint
+app.get("/jokes", (req, res) => {
+  const username = req.cookies.username;
+  if (username) {
+    const jokes = `
+      <ul>
+        <li>Why don’t skeletons fight each other? They don’t have the guts.</li>
+        <li>Why did the scarecrow win an award? Because he was outstanding in his field.</li>
+        <li>What do you call fake spaghetti? An impasta.</li>
+      </ul>
+    `;
+    res.send(jokes);
+  } else {
+    res.send("No Jokes to display. Very sorry.");
+  }
+});
+
+// All other routes
+app.all("*", (req, res) => {
+  const headerRendering = renderHeaders(req);
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Headers for ${req.path}</title>
+    </head>
+    <body>
+      ${headerRendering}
+    </body>
+    </html>
+  `);
 });
 
 // Start the HTTP server
 http.createServer(app).listen(7172, () => {
-  console.log(
-    "Server is running at http://localhost:7172 (server-http-7172.js)! 🚀",
-  );
+  console.log("Server is running at http://localhost:7172 🚀");
 });
