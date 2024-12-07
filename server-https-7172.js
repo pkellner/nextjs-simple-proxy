@@ -200,7 +200,7 @@ app.all("*", (req, res) => {
 // Start the HTTPS server
 https.createServer(options, app).listen(7172, () => {
   console.log(
-    "Server is running at https://localhost:7172 (server-https-7172.js)! 🚀🚀",
+    "Server is running at https://localhost:7172 (server-https-7172.js)! 🚀🚀🚀🚀",
     cookieOptions,
   );
 });
