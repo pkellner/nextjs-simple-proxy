@@ -19,11 +19,6 @@ app.use(cookieParser());
 const target = "https://localhost:7172"; // Target server
 
 app.use((req, res, next) => {
-  // console.log("Incoming request:", {
-  //   method: req.method,
-  //   url: req.url,
-  //   headers: req.headers
-  // });
   next();
 });
 
@@ -38,18 +33,17 @@ app.use(
       return req.originalUrl;
     },
     onProxyReq: (proxyReq, req, res) => {
-
+      console.log("Forwarding request to target server:");
+      console.log("Method:", proxyReq.method);
+      console.log("Path:", proxyReq.path);
       console.log("Original request Origin:", req.headers.origin);
       console.log("Setting Origin to:", "https://localhost:7172");
       proxyReq.setHeader("Origin", "https://localhost:7172");
 
-
-      // Forward client cookies to the target server
       if (req.headers.cookie) {
         console.log("Forwarding Cookies:", req.headers.cookie);
       }
 
-      // Set a custom header
       proxyReq.setHeader("X-Custom-Header", "my-custom-value");
 
       console.log("Proxy Request Headers:", proxyReq.getHeaders());
@@ -57,24 +51,21 @@ app.use(
     onProxyRes: (proxyRes, req, res) => {
       console.log("Response from target server:", proxyRes.statusCode);
 
-      // Remove any existing CORS headers from the target response
       delete proxyRes.headers["access-control-allow-origin"];
       delete proxyRes.headers["access-control-allow-methods"];
       delete proxyRes.headers["access-control-allow-headers"];
       delete proxyRes.headers["access-control-allow-credentials"];
 
-      // Forward set-cookie headers if present
       if (proxyRes.headers["set-cookie"]) {
         res.setHeader("Set-Cookie", proxyRes.headers["set-cookie"]);
       }
 
-      // Set specific CORS headers for the client
-      res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+      res.setHeader("Access-Control-Allow-Origin", "https://localhost:3000");
       res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
       res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
       res.setHeader("Access-Control-Allow-Credentials", "true");
     },
-    logLevel: "debug", // Debugging proxy activity
+    logLevel: "debug",
   })
 );
 
