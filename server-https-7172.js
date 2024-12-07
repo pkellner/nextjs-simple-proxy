@@ -46,6 +46,7 @@ app.use(
         console.log("allowed origin", origin);
         callback(null, true);
       } else {
+        console.log("not allowed origin", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
