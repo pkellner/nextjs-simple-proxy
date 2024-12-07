@@ -21,7 +21,7 @@ app.use(cookieParser());
 const cookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: "none",
+  sameSite: "strict",
 };
 
 const allowedOrigins = [
