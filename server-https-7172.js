@@ -33,6 +33,7 @@ const allowedOrigins = [
   "https://localhost:7172",
   "http://localhost:3000",
   "https://localhost:3000",
+  "https://desired-origin.com",
 ];
 app.use(
   cors({

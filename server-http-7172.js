@@ -21,10 +21,14 @@ const allowedOrigins = [
   "https://localhost:7172",
   "http://localhost:3000",
   "https://localhost:3000",
+  "https://desired-origin.com",
 ];
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: function (origin, callback) {
+
+      console.log("app.use cors origin", origin);
+
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);

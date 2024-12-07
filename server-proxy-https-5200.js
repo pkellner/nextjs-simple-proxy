@@ -31,6 +31,8 @@ app.use(
         console.log("Forwarding Cookies:", req.headers.cookie);
       }
 
+      proxyReq.setHeader("Origin", "https://desired-origin.com");
+
       // Set a custom header
       proxyReq.setHeader("X-Custom-Header", "my-custom-value");
     },
@@ -49,7 +51,7 @@ app.use(
       }
 
       // Set specific CORS headers for the client
-      res.setHeader("Access-Control-Allow-Origin", "https://localhost:5200");
+      res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
       res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
       res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
       res.setHeader("Access-Control-Allow-Credentials", "true");
