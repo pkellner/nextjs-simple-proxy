@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server-https-7172.js"
+    "start": "node server-http-7172.js"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
