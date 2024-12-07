@@ -5,8 +5,8 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  //const fetchBaseUrl  = "https://proxytest.73rdst.com";
-  const fetchBaseUrl  = "https://localhost:5200";
+  const fetchBaseUrl  = "https://proxytest.73rdst.com";
+  //const fetchBaseUrl  = "https://localhost:5200";
   //const fetchBaseUrl = "https://localhost:7172";
   //const fetchBaseUrl  = "http://localhost:5200";
   //const fetchBaseUrl = "http://localhost:7172";
