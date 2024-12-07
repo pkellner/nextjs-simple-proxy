@@ -15,3 +15,27 @@ locally. If you do either a `curl -k https://localhost:5200` or a `curl -k https
 
 
 http://localhost:3000/ -> https://mysite.com
+
+
+# readme
+
+THis curl command is for testing the express server.  It is a GET request to the /jokes endpoint.  It is a simple request with a cookie and some headers.  The cookie is the username=Ell
+
+curl -X GET -k "https://localhost:5200/jokes" \
+-H "Access-Control-Allow-Credentials: true" \
+-H "Content-Type: text/html; charset=utf-8" \
+-H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" \
+-H "Accept-Encoding: gzip, deflate, br, zstd" \
+-H "Accept-Language: en-US,en;q=0.9" \
+-H "Cookie: username=Elliot1" \
+-H "DNT: 1" \
+-H "Priority: u=0, i" \
+-H "Sec-CH-UA: \"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"" \
+-H "Sec-CH-UA-Mobile: ?0" \
+-H "Sec-CH-UA-Platform: \"macOS\"" \
+-H "Sec-Fetch-Dest: document" \
+-H "Sec-Fetch-Mode: navigate" \
+-H "Sec-Fetch-Site: none" \
+-H "Sec-Fetch-User: ?1" \
+-H "Upgrade-Insecure-Requests: 1" \
+-H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
