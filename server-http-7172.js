@@ -9,7 +9,7 @@ app.use(cookieParser());
 const cookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: "strict",
+  sameSite: "none", // when set to "none" the react app works, strict does not
 };
 
 const allowedOrigins = [
