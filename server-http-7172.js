@@ -8,7 +8,7 @@ app.use(cookieParser());
 
 const cookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: false,
   sameSite: "none", // when set to "none" the react app works, strict does not
 };
 
