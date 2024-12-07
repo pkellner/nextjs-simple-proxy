@@ -152,7 +152,7 @@ app.post("/login", (req, res) => {
   res.cookie("username", "Elliot", {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: "none",
   });
   res.status(200).send("Logged in as Elliot");
 });
