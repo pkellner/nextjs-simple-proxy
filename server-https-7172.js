@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 const cookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: false,
   sameSite: "none", // when set to "none" the react app works, strict does not
 };
 
@@ -31,16 +31,11 @@ const allowedOrigins = [
   "https://localhost:5200",
   "http://localhost:7172",
   "https://localhost:7172",
-  "http://localhost:3000",
-  "https://localhost:3000",
   "https://desired-origin.com",
 ];
 app.use(
   cors({
     origin: function (origin, callback) {
-
-      console.log("app.use cors origin", origin);
-
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedOrigins.includes(origin)) {
         console.log("allowed origin", origin);

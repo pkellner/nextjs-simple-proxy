@@ -37,13 +37,12 @@ proxy.on("proxyReq", (proxyReq, req, res) => {
   console.log("Original request Origin:", req.headers.origin);
   console.log("Setting Origin to:", "https://localhost:7172");
 
-  // Forward cookies to the target server
+  proxyReq.setHeader("Origin", "https://localhost:7172");
+
   if (req.headers.cookie) {
     console.log("Forwarding Cookies:", req.headers.cookie);
-    proxyReq.setHeader("Cookie", req.headers.cookie);
   }
 
-  proxyReq.setHeader("Origin", "https://localhost:7172");
   proxyReq.setHeader("X-Custom-Header", "my-custom-value");
 
   console.log("Proxy Request Headers:", proxyReq.getHeaders());
@@ -51,20 +50,19 @@ proxy.on("proxyReq", (proxyReq, req, res) => {
 
 proxy.on("proxyRes", (proxyRes, req, res) => {
   console.log("Response from target server:", proxyRes.statusCode);
+  console.log("Headers from target server:", proxyRes.headers);
 
-  // Remove restrictive CORS headers from the target server's response
   delete proxyRes.headers["access-control-allow-origin"];
   delete proxyRes.headers["access-control-allow-methods"];
   delete proxyRes.headers["access-control-allow-headers"];
   delete proxyRes.headers["access-control-allow-credentials"];
 
-  // Forward cookies from the target server to the client
+  console.log("Response Headers:", proxyRes.headers,proxyRes.headers["set-cookie"]);
+
   if (proxyRes.headers["set-cookie"]) {
-    console.log("Forwarding Set-Cookie headers:", proxyRes.headers["set-cookie"]);
     res.setHeader("Set-Cookie", proxyRes.headers["set-cookie"]);
   }
 
-  // Add CORS headers for the client
   res.setHeader("Access-Control-Allow-Origin", "https://localhost:3000");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");

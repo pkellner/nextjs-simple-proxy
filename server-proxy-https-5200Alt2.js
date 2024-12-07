@@ -21,6 +21,13 @@ const proxy = httpProxy.createProxyServer({
   agent: new https.Agent({ rejectUnauthorized: false }),
 });
 
+proxy.on("proxyReq", (proxyReq, req) => {
+  if (req.headers.cookie) {
+    proxyReq.setHeader("Cookie", req.headers.cookie); // Forward client cookies
+    console.log("Forwarding Cookie to Target:", req.headers.cookie);
+  }
+});
+
 // Add more event listeners
 proxy.on('proxyReq', (proxyReq, req, res) => {
   console.log("Proxy Request Details:");
