@@ -31,19 +31,19 @@ function renderHeaders(req) {
       "content-security-policy",
       "referrer-policy",
       "permissions-policy",
-    ].includes(key.toLowerCase()),
+    ].includes(key.toLowerCase())
   );
   const normalHeaders = Object.entries(headers).filter(
     ([key]) =>
       key.toLowerCase() !== "cookie" &&
-      !securityHeaders.some(([secKey]) => secKey === key),
+      !securityHeaders.some(([secKey]) => secKey === key)
   );
 
   const formatHeaders = (headersList) =>
     headersList
       .map(
         ([key, value]) =>
-          `<tr><td style="padding: 8px; border: 1px solid #ddd;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`,
+          `<tr><td style="padding: 8px; border: 1px solid #ddd;">${key}</td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`
       )
       .join("");
 
@@ -56,8 +56,8 @@ function renderHeaders(req) {
         </thead>
         <tbody>
           ${cookies
-            .map(({ key, value }) => formatHeaders([[key, value]]))
-            .join("")}
+      .map(({ key, value }) => formatHeaders([[key, value]]))
+      .join("")}
         </tbody>
       </table>
     `
@@ -123,14 +123,12 @@ app.get("/", (req, res) => {
       <p id="jokes"></p>
       <script>
         document.getElementById("login").addEventListener("click", async () => {
-          await fetch("/login", { method: "POST" });
-          //alert("Logged in as Elliot!");
+          await fetch("/login", { method: "POST", credentials: "include" });
           location.reload();
         });
 
         document.getElementById("logout").addEventListener("click", async () => {
-          await fetch("/logout", { method: "POST" });
-          //alert("Logged out!");
+          await fetch("/logout", { method: "POST", credentials: "include" });
           location.reload();
         });
 
@@ -167,16 +165,13 @@ app.post("/logout", (req, res) => {
 app.get("/jokes", (req, res) => {
   const username = req.cookies.username;
   if (username) {
-    const jokes = `
-      <ul>
-        <li>Why don’t skeletons fight each other? They don’t have the guts.</li>
-        <li>Why did the scarecrow win an award? Because he was outstanding in his field.</li>
-        <li>What do you call fake spaghetti? An impasta.</li>
-      </ul>
-    `;
-    res.send(jokes);
+    res.json([
+      "Why don’t skeletons fight each other? They don’t have the guts.",
+      "Why did the scarecrow win an award? Because he was outstanding in his field.",
+      "What do you call fake spaghetti? An impasta.",
+    ]);
   } else {
-    res.send("No Jokes to display. Very sorry.");
+    res.status(401).send("401 Unauthorized: Please log in to view jokes.");
   }
 });
 
@@ -201,6 +196,6 @@ app.all("*", (req, res) => {
 // Start the HTTPS server
 https.createServer(options, app).listen(7172, () => {
   console.log(
-    "Server is running at https://localhost:7172 (server-https-7172.js)! 🚀",
+    "Server is running at https://localhost:7172 (server-https-7172.js)! 🚀"
   );
 });

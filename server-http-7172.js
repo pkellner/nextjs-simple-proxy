@@ -1,8 +1,8 @@
-const http = require("http");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const app = express();
+
 app.use(cookieParser());
 
 function renderHeaders(req) {
@@ -101,7 +101,7 @@ app.get("/", (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Sample Fetch UI</title>
+      <title>Sample Fetch UI (HTTP)</title>
     </head>
     <body>
       <h1>Sample Fetch UI</h1>
@@ -111,14 +111,12 @@ app.get("/", (req, res) => {
       <p id="jokes"></p>
       <script>
         document.getElementById("login").addEventListener("click", async () => {
-          await fetch("/login", { method: "POST" });
-          //alert("Logged in as Elliot!");
+          await fetch("/login", { method: "POST", credentials: "include" });
           location.reload();
         });
 
         document.getElementById("logout").addEventListener("click", async () => {
-          await fetch("/logout", { method: "POST" });
-          //alert("Logged out!");
+          await fetch("/logout", { method: "POST", credentials: "include" });
           location.reload();
         });
 
@@ -137,7 +135,9 @@ app.get("/", (req, res) => {
 
 // Login endpoint
 app.post("/login", (req, res) => {
-  res.cookie("username", "Elliot", { httpOnly: true });
+  res.cookie("username", "Elliot", {
+    httpOnly: true,
+  });
   res.status(200).send("Logged in as Elliot");
 });
 
@@ -151,16 +151,13 @@ app.post("/logout", (req, res) => {
 app.get("/jokes", (req, res) => {
   const username = req.cookies.username;
   if (username) {
-    const jokes = `
-      <ul>
-        <li>Why don’t skeletons fight each other? They don’t have the guts.</li>
-        <li>Why did the scarecrow win an award? Because he was outstanding in his field.</li>
-        <li>What do you call fake spaghetti? An impasta.</li>
-      </ul>
-    `;
-    res.send(jokes);
+    res.json([
+      "Why don’t skeletons fight each other? They don’t have the guts.",
+      "Why did the scarecrow win an award? Because he was outstanding in his field.",
+      "What do you call fake spaghetti? An impasta.",
+    ]);
   } else {
-    res.send("No Jokes to display. Very sorry.");
+    res.status(401).send("401 Unauthorized: Please log in to view jokes.");
   }
 });
 
@@ -183,6 +180,8 @@ app.all("*", (req, res) => {
 });
 
 // Start the HTTP server
-http.createServer(app).listen(7172, () => {
-  console.log("Server is running at http://localhost:7172 🚀");
+app.listen(7172, () => {
+  console.log(
+    "Server is running at http://localhost:7172 (server-http-7172.js)! 🚀"
+  );
 });

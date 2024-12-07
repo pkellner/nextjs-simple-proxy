@@ -19,21 +19,22 @@ app.use(cookieParser());
 app.use(
   "*",
   createProxyMiddleware({
-    //target: "https://localhost:7172",
-    target: "https://proxytester.73rdst.com/",
+    target: "https://localhost:7172", // Proxy to target server
     changeOrigin: true, // Updates the host header to the target URL
     secure: false, // Allow self-signed SSL certificates
     pathRewrite: (path, req) => {
-      return path;
+      // Forward the original path to the target server
+      console.log("Original Path:", req.originalUrl);
+      return req.originalUrl;
     },
     onProxyReq: (proxyReq, req, res) => {
-      // Check if the client sent cookies
+      // Forward client cookies to the target server
       if (req.headers.cookie) {
         console.log("Forwarding Cookies:", req.headers.cookie);
-        proxyReq.setHeader("Cookie", req.headers.cookie);
+        //proxyReq.setHeader("Cookie", req.headers.cookie);
       }
 
-      // Set custom header
+      // Set a custom header
       proxyReq.setHeader("X-Custom-Header", "my-custom-value");
     },
     onProxyRes: (proxyRes, req, res) => {
@@ -48,18 +49,17 @@ app.use(
         res.setHeader("Set-Cookie", proxyRes.headers["set-cookie"]);
       }
 
-      // Set CORS headers once
+      // Set CORS headers for the client
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
       res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
       res.setHeader("Access-Control-Allow-Credentials", "true");
     },
     logLevel: "debug", // Debugging proxy activity
-  }),
+  })
 );
 
 // Start the HTTPS server on port 5200
 https.createServer(options, app).listen(5200, () => {
   console.log("Proxy server is running at https://localhost:5200");
 });
-
